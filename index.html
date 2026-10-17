@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <base target="_blank">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- 🚀 TRIPLE BLINDAJE ANTI-CACHÉ -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  
+  <title>Biblioteca Digital EMPA</title>
+
+  <style>
+    :root {
+      --color-fondo: #faf3eb;
+      --color-borde: #ebdcd0;
+      --color-boton: #8d6237;
+      --color-fondo-img: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+    
+    body { 
+      margin: 0; 
+      padding: 6px 0; 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      background-color: transparent; 
+      overflow-y: auto; 
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-thumb { background-color: var(--color-boton); border-radius: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+
+    /* LOADER REDISEÑADO (🐭👓 Apilados + Animación de Investigación) */
+    #loader-container {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    .loader-card {
+      padding: 18px 26px;
+      background-color: var(--color-fondo);
+      border: 1px solid var(--color-borde);
+      border-top: 4px solid var(--color-boton);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      max-width: 90%;
+    }
+
+    .raton-investigador {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1;
+      padding: 4px 8px;
+      animation: husmearEstante 2.4s infinite ease-in-out;
+    }
+
+    .emoji-raton {
+      font-size: 2.75rem;
+      display: block;
+      filter: drop-shadow(0 2px 3px rgba(0,0,0,0.08));
+    }
+
+    .emoji-lentes {
+      font-size: 2.1rem;
+      margin-top: -8px;
+      display: block;
+      animation: ajustarLentes 2.4s infinite ease-in-out;
+    }
+
+    @keyframes husmearEstante {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      25% { transform: translateY(-3px) rotate(-4deg) translateX(-3px); }
+      50% { transform: translateY(0px) rotate(0deg); }
+      75% { transform: translateY(-3px) rotate(4deg) translateX(3px); }
+    }
+
+    @keyframes ajustarLentes {
+      0%, 100% { transform: translateY(0) scale(1); }
+      25% { transform: translateY(1px) scale(1.06) rotate(-3deg); }
+      50% { transform: translateY(-2px) scale(1); }
+      75% { transform: translateY(1px) scale(1.06) rotate(3deg); }
+    }
+
+    .loader-texto {
+      color: var(--color-boton);
+      font-size: 0.95rem;
+      font-weight: 600;
+      font-style: italic;
+      text-align: center;
+      margin-top: 2px;
+      letter-spacing: 0.2px;
+    }
+
+    /* TARJETA DEFINITIVA */
+    #app-container {
+      width: 100%;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    #app-container.visible {
+      display: block;
+      opacity: 1;
+    }
+
+    .tarjeta { 
+      width: 96%; 
+      max-width: 900px; 
+      margin: 0 auto; 
+      background-color: var(--color-fondo); 
+      border: 1px solid var(--color-borde); 
+      border-left: 5px solid var(--color-boton); 
+      border-radius: 6px; 
+      padding: 14px; 
+      box-sizing: border-box; 
+      position: relative; 
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+
+    .rejilla { display: flex; flex-direction: column; gap: 4px; }
+    .fila-principal { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; width: 100%; }
+    
+    .bloque-izq { flex: 2 1 260px; display: flex; align-items: center; gap: 12px; }
+    .caja-img { flex: 0 0 60px; width: 60px; height: 85px; background-color: var(--color-fondo-img); border-radius: 4px; overflow: hidden; }
+    .caja-img img { width: 100%; height: 100%; object-fit: cover; display: block; border: 0; }
+    .caja-textos { flex: 1 1 auto; color: #222; text-align: left; }
+    .titulo { font-size: 1.1rem; font-weight: bold; margin-bottom: 4px; line-height: 1.2; }
+    .titulo a { color: var(--color-boton); text-decoration: none; }
+    .titulo a:hover { text-decoration: underline; }
+    .autores { font-size: 0.9rem; }
+    
+    .bloque-centro { flex: 1 1 180px; display: flex; align-items: center; gap: 15px; }
+    .info { font-size: 0.85rem; color: #555; opacity: 0.85; text-align: left; line-height: 1.3; }
+    
+    .bloque-der { flex: 1 1 auto; display: flex; gap: 10px; align-items: center; justify-content: flex-end; }
+    .btn-pdf { background-color: var(--color-boton); color: #fff; padding: 9px 16px; border-radius: 4px; text-decoration: none; font-size: 0.85rem; font-weight: bold; transition: opacity 0.2s; white-space: nowrap; display: flex; align-items: center; justify-content: center; }
+    .btn-pdf:hover { opacity: 0.9; }
+    .btn-indice { flex: 0 0 40px; width: 40px; height: 40px; display: block; transition: transform 0.2s; }
+    .btn-indice:hover { transform: scale(1.05); }
+    .btn-indice img { width: 100%; height: 100%; object-fit: contain; border: 0; }
+
+    .opciones-dinamicas { display: flex; gap: 12px; align-items: center; flex-wrap: nowrap; }
+    .opcion-enlace { display: block; width: 26px; height: 26px; transition: transform 0.2s; flex-shrink: 0; }
+    .opcion-enlace:hover { transform: scale(1.1); }
+    .opcion-icono { width: 100%; height: 100%; object-fit: contain; border: 0; }
+    .autor-enlace { color: #444; font-weight: 600; opacity: 0.9; text-decoration: underline; text-decoration-color: #bbbbbb; text-underline-offset: 2px; }
+    
+    .desc-dinamica { width: 100%; font-size: 0.825rem; font-style: italic; color: #444; margin-top: 6px; padding-top: 8px; border-top: 1px solid var(--color-borde); opacity: 0.95; line-height: 1.4; }
+    .btn-toggle-desc { font-weight: 600; text-decoration: underline; text-underline-offset: 2px; transition: opacity 0.2s; color: var(--color-boton); cursor: pointer; }
+    .btn-toggle-desc:hover { opacity: 0.8; }
+
+    .zocalo-inferior { display: flex; justify-content: flex-end; align-items: center; width: 100%; margin-top: 2px; padding-top: 8px; border-top: 1px dashed var(--color-borde); }
+    .zocalo-izq { margin-right: auto; display: flex; align-items: center; min-width: 0; }
+    .zocalo-izq:empty { display: none; }
+    .zocalo-der { flex-shrink: 0; margin-left: auto; }
+    
+    .sitio-dinamico { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; border: none !important; padding-top: 0 !important; margin-top: 0 !important; width: 100%; min-width: 0; }
+    .sitio-texto { font-style: italic; color: #666; white-space: nowrap; }
+    .sitio-enlace { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: var(--color-boton); font-weight: 600; overflow: hidden; }
+    .sitio-icono { flex-shrink: 0; height: 18px; width: auto; object-fit: contain; border-radius: 2px; display: block; }
+    .sitio-nombre { text-decoration: underline; text-decoration-color: #bbbbbb; text-underline-offset: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .btn-info-modal { background: transparent; border: none; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background 0.2s, transform 0.2s; outline: none; }
+    .btn-info-modal:hover { background: rgba(0,0,0,0.05); transform: scale(1.05); }
+    .svg-dinamico { fill: var(--color-boton); }
+
+    /* MODAL LEGAL */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; z-index: 10000; }
+    .modal-overlay.activo { opacity: 1; visibility: visible; }
+    .modal-box { background-color: var(--color-fondo); border: 1px solid var(--color-borde); border-left: 5px solid var(--color-boton); width: 92%; max-width: 480px; max-height: 95%; overflow-y: auto; border-radius: 8px; padding: 18px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); position: relative; transform: translateY(15px); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .modal-overlay.activo .modal-box { transform: translateY(0); }
+    .modal-close { position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 1.6rem; color: #777; cursor: pointer; line-height: 1; transition: color 0.2s; padding: 0 4px; }
+    .modal-close:hover { color: var(--color-boton); }
+    .modal-title { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 1.05rem; color: var(--color-boton); margin-bottom: 14px; padding-right: 20px; border-bottom: 1px solid var(--color-borde); padding-bottom: 8px; }
+    .modal-list { list-style: none; padding: 0; margin: 0 0 14px 0; font-size: 0.82rem; color: #333; }
+    .modal-list li { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; line-height: 1.4; }
+    .modal-list svg { flex-shrink: 0; margin-top: 1px; }
+    .modal-footer { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; color: var(--color-boton); border-top: 1px dashed var(--color-borde); padding-top: 12px; line-height: 1.3; }
+
+    @media (max-width: 700px) {
+      .fila-principal { gap: 14px; }
+      .bloque-izq, .bloque-centro, .bloque-der { flex: 1 1 100%; }
+      .bloque-centro, .bloque-der { justify-content: space-between; }
+      .bloque-der { margin-top: 4px; }
+      .btn-pdf { flex: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOADER -->
+  <div id="loader-container">
+    <div class="loader-card">
+      <div class="raton-investigador">
+        <span class="emoji-raton">🐭</span>
+        <span class="emoji-lentes">👓</span>
+      </div>
+      <span id="loader-msg" class="loader-texto">Buscando en los estantes...</span>
+    </div>
+  </div>
+
+  <!-- TARJETA -->
+  <div id="app-container">
+    <div class="tarjeta">
+      <div class="rejilla">
+        <div class="fila-principal">
+          <div class="bloque-izq">
+            <div class="caja-img">
+              <a id="link-portada" href="#"><img id="img-portada" src="" alt="Portada"></a>
+            </div>
+            <div class="caja-textos">
+              <div class="titulo"><a id="link-titulo" href="#"></a></div>
+              <div id="contenedor-autores" class="autores"></div>
+            </div>
+          </div>
+          <div class="bloque-centro">
+            <div class="info"><strong id="txt-editorial"></strong><br><span id="txt-ano"></span></div>
+            <div id="contenedor-opciones"></div>
+          </div>
+          <div class="bloque-der">
+            <a id="btn-pdf" class="btn-pdf" href="#">📖 Leer PDF</a>
+            <a id="btn-indice" class="btn-indice" href="#"><img id="img-indice" src="" alt="Índice"></a>
+          </div>
+        </div>
+        
+        <div id="contenedor-desc"></div>
+        
+        <div class="zocalo-inferior">
+          <div id="contenedor-sitio" class="zocalo-izq"></div>
+          <div class="zocalo-der">
+            <button id="btnInfoModal" class="btn-info-modal" aria-label="Condiciones de Uso">
+              <svg class="svg-dinamico" viewBox="0 0 24 24" width="22" height="22"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL LEGAL -->
+  <div id="modalLegal" class="modal-overlay">
+    <div class="modal-box">
+      <button class="modal-close" aria-label="Cerrar modal">&times;</button>
+      <div class="modal-title">
+        <svg class="svg-dinamico" viewBox="0 0 24 24" width="22" height="22"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+        Condiciones de Acceso y Uso
+      </div>
+      <ul class="modal-list">
+        <li>
+          <svg class="svg-dinamico" viewBox="0 0 24 24" width="20" height="20"><path d="M12 11.55C9.64 9.35 6.48 8 3 8v11c3.48 0 6.64 1.35 9 3.55 2.36-2.19 5.52-3.55 9-3.55V8c-3.48 0-6.64 1.35-9 3.55zM12 8c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3z"/></svg>
+          <span><strong>Inclusión y Equidad (Leyes N° 26.206 y 27.061):</strong> Recurso de circulación académica interna para garantizar el pleno derecho a la educación y el cumplimiento de las trayectorias pedagógicas (PP y PPC) de la DGCyA.</span>
+        </li>
+        <li>
+          <svg class="svg-dinamico" viewBox="0 0 24 24" width="20" height="20"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+          <span><strong>Compromiso (Ley 11.723):</strong> Quien accede con su usuario y clave asume el uso estrictamente personal para estudio o investigación.</span>
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="#d32f2f"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM4 12c0-4.42 3.58-8 8-8 1.85 0 3.55.63 4.9 1.69L5.69 16.9C4.63 15.55 4 13.85 4 12zm8 8c-1.85 0-3.55-.63-4.9-1.69L18.31 7.1C19.37 8.45 20 10.15 20 12c0 4.42-3.58 8-8 8z"/></svg>
+          <span><strong>Restricciones:</strong> Queda terminantemente prohibida su reproducción impresa, descarga masiva o distribución fuera de esta plataforma cerrada.</span>
+        </li>
+      </ul>
+      <div class="modal-footer">
+        <svg class="svg-dinamico" viewBox="0 0 24 24" width="20" height="20"><path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"/></svg>
+        <div>Revisión de disponibilidad y soporte:<br><strong>biblioteca.virtual.empa@gmail.com</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 🌐 URL de tu API de Google Apps Script ya integrada (lista para usar)
+    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbz7g9XDVTkeSuveco_UUzbCL8-vHx1UF_NJ-QoO_-0hSDKPXWkDgyXTbec-JBCHpU3-/exec";
+
+    // Detector de BFCache para móviles
+    window.addEventListener('pageshow', function(event) {
+      if (event.persisted) { window.location.reload(); }
+    });
+
+    function aplicarPaleta(fondo, borde, boton, fondoImg) {
+      const root = document.documentElement;
+      if (fondo) root.style.setProperty('--color-fondo', fondo.startsWith('#') ? fondo : '#' + fondo);
+      if (borde) root.style.setProperty('--color-borde', borde.startsWith('#') ? borde : '#' + borde);
+      if (boton) root.style.setProperty('--color-boton', boton.startsWith('#') ? boton : '#' + boton);
+      if (fondoImg) root.style.setProperty('--color-fondo-img', fondoImg.startsWith('#') ? fondoImg : '#' + fondoImg);
+    }
+
+    function inicializarToggleDescripcion() {
+      const descEl = document.querySelector('.desc-dinamica');
+      if (!descEl) return;
+
+      const textOriginal = descEl.textContent.trim();
+      const palabras = textOriginal.split(/\s+/);
+      
+      if (palabras.length > 5) {
+        const textoCorto = palabras.slice(0, 5).join(' ');
+        const vistaCorta = `<span class="texto-mostrado">${textoCorto}</span><span class="puntos">... </span><a href="#" class="btn-toggle-desc">expandir</a>`;
+        const vistaLarga = `<span class="texto-mostrado">${textOriginal} </span><a href="#" class="btn-toggle-desc">colapsar</a>`;
+        
+        descEl.innerHTML = vistaCorta;
+        descEl.addEventListener('click', function(e) { 
+          if (e.target && e.target.classList.contains('btn-toggle-desc')) { 
+            e.preventDefault(); 
+            const expandiendo = e.target.textContent === 'expandir'; 
+            descEl.innerHTML = expandiendo ? vistaLarga : vistaCorta; 
+          } 
+        });
+      }
+    }
+
+    async function inicializarTarjeta() {
+      const params = new URLSearchParams(window.location.search);
+      const idLibro = params.get('id');
+
+      if (params.get('bg') || params.get('btn')) {
+        aplicarPaleta(params.get('bg'), params.get('brd'), params.get('btn'), null);
+      }
+
+      const loaderContainer = document.getElementById('loader-container');
+      const loaderMsg = document.getElementById('loader-msg');
+      const appContainer = document.getElementById('app-container');
+
+      if (!idLibro) {
+        loaderMsg.textContent = "Código de obra no especificado (?id=...)";
+        return;
+      }
+
+      try {
+        const urlPeticion = `${GAS_ENDPOINT_URL}?id=${encodeURIComponent(idLibro.trim())}&vista=api`;
+        const respuesta = await fetch(urlPeticion, { method: 'GET', redirect: 'follow' });
+
+        if (!respuesta.ok) { throw new Error("Respuesta de red no válida"); }
+
+        const data = await respuesta.json();
+
+        if (!data || data.exito === false) {
+          loaderMsg.textContent = data && data.error ? data.error : "Obra no encontrada en los estantes.";
+          return;
+        }
+
+        aplicarPaleta(data.colorFondo, data.colorBorde, data.colorBoton, data.colorFondoImg);
+        document.title = data.titulo ? `${data.titulo} | Biblioteca EMPA` : "Biblioteca Digital EMPA";
+
+        document.getElementById('link-portada').href = data.enlacePdf || "#";
+        const imgPortada = document.getElementById('img-portada');
+        imgPortada.src = data.portada || "https://ik.imagekit.io/BiblioDigitalEmpa/Iconos/Categorias/Libro.png";
+        imgPortada.onerror = function() {
+          this.src = data.iconoGlobal || "https://ik.imagekit.io/BiblioDigitalEmpa/Iconos/Categorias/Libro.png";
+        };
+
+        const linkTitulo = document.getElementById('link-titulo');
+        linkTitulo.href = data.enlacePdf || "#";
+        linkTitulo.textContent = data.titulo || "Sin título";
+
+        document.getElementById('contenedor-autores').innerHTML = data.autoresHtml || "";
+        document.getElementById('txt-editorial').textContent = data.editorial || "S/D";
+        document.getElementById('txt-ano').textContent = data.ano || "-";
+        document.getElementById('contenedor-opciones').innerHTML = data.opcionesHtml || "";
+
+        document.getElementById('btn-pdf').href = data.enlacePdf || "#";
+        document.getElementById('btn-indice').href = data.enlaceIndice || "#";
+        document.getElementById('img-indice').src = data.iconoGlobal || "https://ik.imagekit.io/BiblioDigitalEmpa/Iconos/Categorias/Libro.png";
+
+        document.getElementById('contenedor-desc').innerHTML = data.descHtml || "";
+        document.getElementById('contenedor-sitio').innerHTML = data.sitioHtml || "";
+
+        inicializarToggleDescripcion();
+
+        loaderContainer.style.opacity = '0';
+        setTimeout(() => {
+          loaderContainer.style.display = 'none';
+          document.body.style.justifyContent = 'flex-start';
+          appContainer.classList.add('visible');
+        }, 300);
+
+      } catch (error) {
+        console.error("Error al obtener datos:", error);
+        loaderMsg.textContent = "No se pudo conectar con la biblioteca. Reintenta en unos segundos.";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      const modal = document.getElementById("modalLegal");
+      const btnInfo = document.getElementById("btnInfoModal");
+      const btnCerrar = document.querySelector(".modal-close");
+
+      btnInfo.addEventListener("click", () => modal.classList.add("activo"));
+      btnCerrar.addEventListener("click", () => modal.classList.remove("activo"));
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) modal.classList.remove("activo");
+      });
+
+      inicializarTarjeta();
+    });
+  </script>
+</body>
+</html>
